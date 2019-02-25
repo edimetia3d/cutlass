@@ -207,8 +207,8 @@ struct Store<Scalar_, kAccessSize, Memory_, FragmentElementType::kScalar, Scalar
   typedef typename Vectorize<Scalar_, kAccessSize>::Type AccessType;
 
   /// The store function.
-  static CUTLASS_HOST_DEVICE void store(AccessType const& src, Scalar_* pointer, int offset) {
-    uint32_t* addr = reinterpret_cast<uint32_t*>(&pointer[offset]);
+  static CUTLASS_HOST_DEVICE void store(AccessType const& src, int8_t* pointer, int offset) {
+    int8_t* addr = reinterpret_cast<int8_t*>(&pointer[offset]);
     addr[0] = src.registers[0];
   }
 };

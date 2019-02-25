@@ -398,6 +398,7 @@ struct GemmGlobalIteratorCd : public TileIteratorBase<TileTraits_,
   struct Params {
     /// The pointer.
     Pointer pointer;
+    int8_t * fixed8_pointer;
     /// The stride in the D dimension
     long long stride_d;
     /// The stride in the H dimension to setup the thread in the block.
@@ -418,6 +419,7 @@ struct GemmGlobalIteratorCd : public TileIteratorBase<TileTraits_,
                                        Index epilogue_delta_w) {
       // The pointer.
       this->pointer = pointer;
+      this->fixed8_pointer=(int8_t *)pointer;
       // Stride per batch
       stride_d = stride_d_;
       // Each column of the matrix.
@@ -527,13 +529,14 @@ struct GemmGlobalIteratorCd : public TileIteratorBase<TileTraits_,
       typename Base::AccessType const& value, int d, int h, int w, int c) {
     int const offset =
         ComputeOffsetFromStrides<typename Base::ImmediateOffsetStrides>::get(d, h, w, c);
+    int8_t * local= reinterpret_cast<int8_t *>(params.fixed8_pointer+(params.pointer-reinterpret_cast<Pointer>(params.fixed8_pointer)));
     Store<Scalar,
           Base::kAccessSize,
           Base::kMemorySpace,
           Base::kFragmentElementType,
           typename Base::FragmentElement,
           Base::Tile::kW,
-          Base::kAccessSize * sizeof(Scalar)>::store(value, params.pointer, offset);
+          Base::kAccessSize * sizeof(Scalar)>::store(value, local, offset);
   }
 
   /// Test the validity of the
